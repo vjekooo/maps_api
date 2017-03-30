@@ -1,10 +1,12 @@
     function initAutocomplete() {
         var zagreb = { lat: 45.815399, lng: 15.966568 };
         var map = new google.maps.Map(document.getElementById('map'), {
-        center: zagreb,
-        zoom: 14,
-        mapTypeId: 'roadmap'
-    });
+            center: zagreb,
+            zoom: 14,
+            mapTypeId: 'roadmap',
+            mapTypeControl: true,
+            streetViewControl: true
+        });
 
     // Create the search box and link it to the UI element.
     var input = document.getElementById('pac-input');
@@ -45,10 +47,10 @@
         };
 
         // Create a marker for each place.
-
         var marker = new google.maps.Marker({
             map: map,
-
+            icon: photos[0].getUrl(),
+            animation: google.maps.Animation.DROP,
             title: place.name,
             position: place.geometry.location,
             placeId: place.place_id,
@@ -57,19 +59,21 @@
 
         markers.push(marker);
 
-
         google.maps.event.addListener(marker, 'click', function(evt) {
-            service.getDetails({
+            service.getDetails({ // get place details via placeId (via reference is depreciated)
             placeId: this.placeId
         }, (function(marker) {
             return function(place, status) {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
-                    infowindow.setContent(
-                    '<div><strong>' + place.name + '</strong><br>' +
-                    place.formatted_address + '<br>' +
-                    'Avg. rating: ' + place.rating + '<br>' +
-                    place.website + '<br>' +
-                    place.formatted_phone_number + '</div>');
+                    infowindow.setContent( // Set what to show in infowindow
+                        '<span style="padding: 0px; text-align:left" align="left"><h5>' +
+                        place.name + '<br></h5>' +
+                        'Avg. rating: ' + place.rating + '<br>' +
+                        place.formatted_address + '<br />' +
+                        place.formatted_phone_number + '<br />' +
+                        '<a  target="_blank" href=' + place.website + '>' + 'Website' + '</a>' + '<br>' +
+                        '<a  target="_blank" href=' + place.url + '>' + 'Show in Goole Maps' + '</a>'
+                    );
                     infowindow.open(map, marker);
                 }
             }
