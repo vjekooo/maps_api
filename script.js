@@ -53,44 +53,65 @@
                 };
 
                 // Create a marker for each place.
-                var marker = new google.maps.Marker({
-                    map: map,
-                    animation: google.maps.Animation.DROP,
-                    title: place.name,
-                    position: place.geometry.location,
-                    placeId: place.place_id,
-                });
+                // var marker = new google.maps.Marker({
+                //     map: map,
+                //     animation: google.maps.Animation.DROP,
+                //     title: place.name,
+                //     position: place.geometry.location,
+                //     placeId: place.place_id,
+                // });
 
-                markers.push(marker);
+                // if (place.geometry.viewport) {
+                //     // Only geocodes have viewport.
+                //     bounds.union(place.geometry.viewport);
+                // } else {
+                //     bounds.extend(place.geometry.location);
+                // }
 
-                if (place.geometry.viewport) {
-                    // Only geocodes have viewport.
-                    bounds.union(place.geometry.viewport);
-                } else {
-                    bounds.extend(place.geometry.location);
-                }
+                var addmarker = function(i) {
+                    //Create marker
+                    var marker = new google.maps.Marker({
+                        map: map,
+                        animation: google.maps.Animation.DROP,
+                        title: place.name,
+                        position: place.geometry.location,
+                        placeId: place.place_id
+                    });
 
+                    markers.push(marker);
 
-                google.maps.event.addListener(marker, 'click', function(evt) {
-                    service.getDetails({ // get place details via placeId (via reference is depreciated)
-                    placeId: this.placeId
-                }, (function(marker) {
-                        return function(place, status) {
-                            if (status === google.maps.places.PlacesServiceStatus.OK) {
-                                infowindow.setContent( // Set what to show in infowindow
-                                    '<span style="padding: 0px; text-align:left" align="left"><h5>' +
-                                    place.name + '<br></h5>' +
-                                    'Avg. rating: ' + place.rating + '<br>' +
-                                    place.formatted_address + '<br />' +
-                                    place.formatted_phone_number + '<br />' +
-                                    '<a  target="_blank" href=' + place.website + '>' + 'Website' + '</a>' + '<br>' +
-                                    '<a  target="_blank" href=' + place.url + '>' + 'Show in Goole Maps' + '</a>'
-                                );
-                                infowindow.open(map, marker);
-                            }
+                    //Creating the closure
+                    (function (i, marker) {
+                        //Add infowindow
+                        google.maps.event.addListener(marker, 'click', function(evt) {
+                            service.getDetails({ // get place details via placeId (via reference is depreciated)
+                            placeId: this.placeId
+                            }, (function(marker) {
+                                    return function(place, status) {
+                                        if (status === google.maps.places.PlacesServiceStatus.OK) {
+                                            infowindow.setContent( // Set what to show in infowindow
+                                                '<span style="padding: 0px; text-align:left" align="left"><h5>' +
+                                                place.name + '<br></h5>' +
+                                                'Avg. rating: ' + place.rating + '<br>' +
+                                                place.formatted_address + '<br />' +
+                                                place.formatted_phone_number + '<br />' +
+                                                '<a  target="_blank" href=' + place.website + '>' + 'Website' + '</a>' + '<br>' +
+                                                '<a  target="_blank" href=' + place.url + '>' + 'View on Google Maps' + '</a>'
+                                        );
+                                        infowindow.open(map, marker);
+                                    }
+                                }
+                            }(marker)));
+                        });
+                    })(i, marker);
+
+                    for (var i = 0; i < marker.length; i++) {
+                        if(i++ < marker.length) {
+                            setTimeout(function() {addmarker(i)}, 900);
                         }
-                    }(marker)));
-                });
+                    }
+                }
+                addmarker(0);
             });
         });
     }
